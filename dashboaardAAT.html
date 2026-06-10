@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Planillas</title>
+    <title>Dashboard de Planillas (Dark Mode)</title>
 
     <!-- Tailwind CSS (Diseño) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,24 +16,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* Estilos personalizados para scrollbars y transiciones */
+        /* Estilos personalizados para scrollbars (Modo Oscuro) y transiciones */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: #0f172a;
         }
 
+        /* slate-900 */
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #334155;
             border-radius: 4px;
         }
 
+        /* slate-700 */
         ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #475569;
         }
+
+        /* slate-600 */
 
         .fade-in {
             animation: fadeIn 0.2s ease-in-out;
@@ -54,34 +58,45 @@
         /* Truncamiento para la tabla */
         .truncate-text {
             display: -webkit-box;
-            line-clamp: 2;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
+        /* Resalte para los días transcurridos */
+        .highlight-days {
+            font-size: 1.25rem;
+            /* text-xl */
+            font-weight: 700;
+            /* font-bold */
+            color: #fbbf24;
+            /* amber-400 */
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
     </style>
 </head>
 
-<body class="bg-slate-50 font-sans text-slate-800 p-4 md:p-8 min-h-screen">
+<body class="bg-slate-900 font-sans text-slate-300 p-4 md:p-8 min-h-screen selection:bg-teal-500/30">
 
     <!-- CABECERA -->
     <header
-        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700/50">
         <div>
-            <h1 class="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
-                <i data-lucide="activity" class="text-teal-500 w-8 h-8"></i>
+            <h1 class="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <i data-lucide="activity" class="text-teal-400 w-8 h-8 drop-shadow-md"></i>
                 Dashboard de Planillas
             </h1>
-            <p class="text-slate-500 mt-1">Gestión y seguimiento de montos y acciones</p>
+            <p class="text-slate-400 mt-1">Gestión y seguimiento de montos y acciones</p>
         </div>
 
         <div class="mt-4 md:mt-0 flex items-center gap-4">
-            <div class="flex items-center gap-2 text-sm" id="syncStatusContainer">
-                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500" id="syncIcon"></i>
-                <span class="text-slate-600 font-medium" id="syncText">Sincronizado</span>
+            <div class="flex items-center gap-2 text-sm bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-700"
+                id="syncStatusContainer">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400" id="syncIcon"></i>
+                <span class="text-slate-300 font-medium" id="syncText">Sincronizado</span>
             </div>
             <button onclick="handleRefresh()"
-                class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg transition-colors shadow-sm">
+                class="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2.5 rounded-lg transition-colors shadow-sm">
                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                 Actualizar Datos
             </button>
@@ -95,15 +110,15 @@
 
     <!-- GRÁFICOS -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h3 class="text-lg font-semibold text-slate-800 mb-6">Resumen de Montos por Planilla</h3>
+        <div class="lg:col-span-2 bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700/50">
+            <h3 class="text-lg font-semibold text-white mb-6">Resumen de Montos por Planilla</h3>
             <div class="h-72 w-full relative">
                 <canvas id="barChart"></canvas>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h3 class="text-lg font-semibold text-slate-800 mb-6">Proporción por Planilla</h3>
+        <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700/50">
+            <h3 class="text-lg font-semibold text-white mb-6">Proporción por Planilla</h3>
             <div class="h-72 w-full relative">
                 <canvas id="pieChart"></canvas>
             </div>
@@ -111,23 +126,23 @@
     </div>
 
     <!-- SECCIÓN DE TABLA DE DATOS -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="bg-slate-800 rounded-2xl shadow-lg border border-slate-700/50 overflow-hidden">
 
         <!-- Controles y Filtros -->
         <div
-            class="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
+            class="p-6 border-b border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-800/80">
             <div class="flex flex-col md:flex-row gap-4 items-center w-full md:w-auto">
                 <div class="flex items-center gap-2 w-full md:w-auto">
                     <i data-lucide="filter" class="w-5 h-5 text-slate-400"></i>
                     <select id="filterPlanilla" onchange="applyFilters()"
-                        class="w-full md:w-auto bg-white border border-slate-200 text-slate-700 rounded-lg px-4 py-2 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition-all">
+                        class="w-full md:w-auto bg-slate-900 border border-slate-600 text-slate-200 rounded-lg px-4 py-2.5 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all">
                         <option value="Todas">Todas las planillas</option>
                     </select>
                 </div>
             </div>
 
             <button onclick="openFormModal()"
-                class="flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-5 py-2.5 rounded-lg transition-colors font-medium shadow-sm w-full md:w-auto">
+                class="flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold px-5 py-2.5 rounded-lg transition-colors shadow-lg shadow-teal-500/20 w-full md:w-auto">
                 <i data-lucide="plus" class="w-5 h-5"></i>
                 Nuevo Registro
             </button>
@@ -137,7 +152,8 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-slate-100 text-slate-600 text-sm uppercase tracking-wider">
+                    <tr
+                        class="bg-slate-900/50 text-slate-400 text-sm uppercase tracking-wider border-b border-slate-700">
                         <th class="p-4 font-semibold">N° Planilla</th>
                         <th class="p-4 font-semibold">Tipo / Acción</th>
                         <th class="p-4 font-semibold">Fecha</th>
@@ -145,7 +161,7 @@
                         <th class="p-4 font-semibold text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="divide-y divide-slate-100">
+                <tbody id="tableBody" class="divide-y divide-slate-700/50">
                     <!-- Generado dinámicamente -->
                 </tbody>
             </table>
@@ -154,24 +170,25 @@
 
     <!-- MODAL: VER OBSERVACIÓN COMPLETA -->
     <div id="obsModal"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm fade-in">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden">
-            <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
-                <h3 class="text-xl font-bold text-slate-900">Detalle de Observación</h3>
+        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm fade-in">
+        <div
+            class="bg-slate-800 rounded-2xl shadow-2xl shadow-black/50 border border-slate-700 w-full max-w-2xl overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b border-slate-700 bg-slate-800/80">
+                <h3 class="text-xl font-bold text-white">Detalle de Observación</h3>
                 <button onclick="closeObsModal()"
-                    class="text-slate-400 hover:text-slate-700 bg-slate-200/50 hover:bg-slate-200 p-2 rounded-full transition-colors">
+                    class="text-slate-400 hover:text-white hover:bg-slate-700 p-2 rounded-full transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-            <div class="p-6">
-                <p id="obsModalTitle" class="text-sm font-semibold text-teal-600 mb-4 uppercase tracking-wider"></p>
+            <div class="p-6 bg-slate-900/30">
+                <p id="obsModalTitle" class="text-sm font-bold text-teal-400 mb-4 uppercase tracking-wider"></p>
                 <div id="obsModalContent"
-                    class="bg-slate-50 p-5 rounded-xl border border-slate-100 text-slate-700 leading-relaxed whitespace-pre-wrap">
+                    class="bg-slate-900 p-5 rounded-xl border border-slate-700 text-slate-300 leading-relaxed whitespace-pre-wrap text-base">
                 </div>
             </div>
-            <div class="p-4 border-t border-slate-100 flex justify-end bg-slate-50">
+            <div class="p-4 border-t border-slate-700 flex justify-end bg-slate-800/80">
                 <button onclick="closeObsModal()"
-                    class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-lg transition-colors">
+                    class="bg-slate-700 hover:bg-slate-600 text-white font-medium px-6 py-2.5 rounded-lg transition-colors">
                     Cerrar
                 </button>
             </div>
@@ -180,51 +197,52 @@
 
     <!-- MODAL: FORMULARIO AGREGAR/EDITAR -->
     <div id="formModal"
-        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm fade-in">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div class="flex justify-between items-center p-6 border-b border-slate-100">
-                <h3 id="formModalTitle" class="text-xl font-bold text-slate-900">Nuevo Registro</h3>
+        class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm fade-in">
+        <div
+            class="bg-slate-800 rounded-2xl shadow-2xl shadow-black/50 border border-slate-700 w-full max-w-md overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b border-slate-700">
+                <h3 id="formModalTitle" class="text-xl font-bold text-white">Nuevo Registro</h3>
                 <button onclick="closeFormModal()"
-                    class="text-slate-400 hover:text-slate-700 p-2 rounded-full transition-colors">
+                    class="text-slate-400 hover:text-white hover:bg-slate-700 p-2 rounded-full transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
             <form id="dataForm" onsubmit="handleSaveForm(event)">
                 <input type="hidden" id="formId">
-                <div class="p-6 space-y-4">
+                <div class="p-6 space-y-5 bg-slate-900/30">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">N° Planilla</label>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">N° Planilla</label>
                         <input type="text" id="formPlanilla" required
-                            class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
+                            class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all placeholder:text-slate-500"
                             placeholder="Ej. 32">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Tipo / Acción</label>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Tipo / Acción</label>
                         <input type="text" id="formTipo" required
-                            class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all"
+                            class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all placeholder:text-slate-500"
                             placeholder="Ej. 1° PRESENTACION">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Fecha</label>
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Fecha</label>
                         <input type="text" id="formFecha" required
-                            class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all">
+                            class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Observaciones /
+                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Observaciones /
                             Aclaraciones</label>
                         <textarea id="formObservacion" required rows="4"
-                            class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition-all resize-none"
+                            class="w-full bg-slate-900 border border-slate-600 text-white rounded-lg px-4 py-2.5 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all resize-none placeholder:text-slate-500"
                             placeholder="Detalle de las observaciones..."></textarea>
                     </div>
                 </div>
-                <div class="p-6 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+                <div class="p-6 border-t border-slate-700 flex justify-end gap-3 bg-slate-800">
                     <button type="button" onclick="closeFormModal()"
-                        class="px-5 py-2.5 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors font-medium">
+                        class="px-5 py-2.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors font-medium">
                         Cancelar
                     </button>
                     <button type="submit" id="formSubmitBtn"
-                        class="bg-teal-500 hover:bg-teal-600 text-white px-5 py-2.5 rounded-lg transition-colors font-medium shadow-sm">
+                        class="bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold px-5 py-2.5 rounded-lg transition-colors shadow-lg shadow-teal-500/20">
                         Guardar
                     </button>
                 </div>
@@ -234,6 +252,11 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Configurar tema oscuro por defecto para Chart.js
+        Chart.defaults.color = '#94a3b8'; // slate-400
+        Chart.defaults.borderColor = '#334155'; // slate-700
+        Chart.defaults.font.family = "'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'";
+
         // ==========================================
         // 1. CONFIGURACIÓN Y DATOS INICIALES (MOCK)
         // ==========================================
@@ -245,37 +268,37 @@
 
         let acciones = [
             // PLANILLA 29
-            { id: "1", planilla: "29", tipo: "1° PRESENTACION", fecha: "4/12/2025", observacion: "Sin observacion" },
+            { id: "1", planilla: "29", tipo: "1° PRESENTACION", fecha: "4/12/2025", observacion: "0 días transcurridos" },
             { id: "2", planilla: "29", tipo: "1° DEVOLUCION", fecha: "09/12/2025", observacion: "Se procedió a la devolución de la planilla, según nota SEDEM/GG/IBAE N° 1581/2025, debido a la identificación de observaciones de forma y de fondo, tanto en el Informe de Control y Monitoreo como en el cuerpo técnico del documento" },
-            { id: "3", planilla: "29", tipo: "2° PRESENTACION", fecha: "18/12/2025", observacion: "Sin observacion" },
+            { id: "3", planilla: "29", tipo: "2° PRESENTACION", fecha: "18/12/2025", observacion: "14 días transcurridos" },
             { id: "4", planilla: "29", tipo: "2° DEVOLUCION", fecha: "24/12/2025", observacion: "La Planilla de Avance fue devuelta según nota SEDEM/GG/IBAE N° 1639/2025, debido a que las observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la propia planilla fueron subsanadas únicamente de manera parcial. Asimismo, se evidenció la persistencia de varias observaciones formuladas en la primera devolución, las cuales no fueron atendidas ni corregidas adecuadamente." },
-            { id: "5", planilla: "29", tipo: "3° PRESENTACION", fecha: "12/01/2026", observacion: "Sin observacion" },
-            { id: "6", planilla: "29", tipo: "3° DEVOLUCION", fecha: "14/01/2026", observacion: "La Planilla de Avance fue devuelta por tercera vez según nota SEDEM/GG/IBAE N° 0044/2026, debido a que las observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la propia planilla fueron subsanadas únicamente de manera parcial. Asimismo, se verificó la persistencia de diversas observaciones formuladas desde la primera devolución, las cuales no fueron atendidas ni corregidas adecuadamente, manteniéndose inconsistencias técnicas y documentales." },
+            { id: "5", planilla: "29", tipo: "3° PRESENTACION", fecha: "12/01/2026", observacion: "39 días transcurridos" },
+            { id: "6", planilla: "29", tipo: "3° DEVOLUCION", fecha: "16/01/2026", observacion: "La Planilla de Avance fue devuelta por tercera vez según nota SEDEM/GG/IBAE N° 0044/2026, debido a que las observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la propia planilla fueron subsanadas únicamente de manera parcial. Asimismo, se verificó la persistencia de diversas observaciones formuladas desde la primera devolución, las cuales no fueron atendidas ni corregidas adecuadamente, manteniéndose inconsistencias técnicas y documentales." },
             { id: "7", planilla: "29", tipo: "NOTIFICACION DE CUMPLIMIENTO DE CONTRATO", fecha: "05/03/2026", observacion: "Habiendo transcurrido treinta y un (31) días hábiles sin que se hubiera efectuado la presentación de las Planillas de Avance N.° 29 y N.° 30, despues de la ultima devolcuion y ante la ausencia de información respecto a su estado de revisión y subsanación, se notificó a la empresa de Control y Monitoreo para que informe sobre la situación actual de dichas planillas presentadas por la Empresa Contratista según nota SEDEM/GG/IBAE N°0278/2026. Asimismo, se le instruyó proceder con la remisión de las referidas planillas, con todas las observaciones formuladas en revisiones anteriores hayan sido debidamente subsanadas, a efectos de continuar con el proceso de pago." },
-            { id: "8", planilla: "29", tipo: "4° PRESENTACION", fecha: "09/03/2026", observacion: "Sin observacion" },
+            { id: "8", planilla: "29", tipo: "4° PRESENTACION", fecha: "09/03/2026", observacion: "95 días transcurridos" },
             { id: "9", planilla: "29", tipo: "4° DEVOLUCION", fecha: "12/03/2026", observacion: "La Planilla de Avance fue devuelta por cuarta vez según nota SEDEM/GG/IBAE N° 0321/2026, debido a que las observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la propia planilla fueron subsanadas únicamente de manera parcial. Asimismo, se verificó la persistencia de diversas observaciones formuladas desde la primera devolución, no fueron atendidas ni corregidas adecuadamente, manteniéndose inconsistencias técnicas y documentales que impedian su validación y posterior procesamiento para pago." },
             { id: "10", planilla: "29", tipo: "INSTRUCTIVO PARA PRESENTACION DE PLANILLAS", fecha: "31/03/2026", observacion: "Habiendo transcurrido diez dias habiles (10) días hábiles sin que se hubiera efectuado la presentación de las Planillas de Avance N.° 29 y N.° 30, despues de la ultima devolucion y ante la ausencia de información respecto a su estado de revisión y subsanación, se le instruyó proceder con la remisión de las referidas planillas según nota SEDEM/GG/IBAE N°0406/2026, con todas las observaciones formuladas en revisiones anteriores hayan sido debidamente subsanadas, a efectos de continuar con el proceso de pago." },
-            { id: "11", planilla: "29", tipo: "5° PRESENTACION", fecha: "07/04/2026", observacion: "Sin observacion" },
+            { id: "11", planilla: "29", tipo: "5° PRESENTACION", fecha: "07/04/2026", observacion: "104 días transcurridos" },
             { id: "12", planilla: "29", tipo: "5° DEVOLUCION", fecha: "17/04/2026", observacion: "Ante la falta de presentación de la factura correspondiente, la Fiscalización solicitó, desde el 14 de abril de 2026, la remisión de la documentación necesaria para viabilizar el pago de la Planilla de Avance de Obra N.° 29. No obstante, la empresa contratista no atendió oportunamente dicho requerimiento, persistiendo la ausencia de la documentación exigida; en consecuencia, se procedió a la devolución de la planilla por quinta vez según nota SEDEM/GG/IBAE N° 0470/2026, para su complementación y posterior presentación" },
-            { id: "13", planilla: "29", tipo: "6° PRESENTACION", fecha: "21/04/2026", observacion: "Sin observacion" },
+            { id: "13", planilla: "29", tipo: "6° PRESENTACION", fecha: "21/04/2026", observacion: "138 días transcurridos" },
             { id: "14", planilla: "29", tipo: "GESTIÓN DE PAGO", fecha: "22/4/2026", observacion: "se esta realizando la gestion de desembolso ante el ministerio de economia y finanzas publicas - MEFP, para la efectivizacion del pago correspondeinte" },
 
             // PLANILLA 30
-            { id: "15", planilla: "30", tipo: "1° PRESENTACION", fecha: "23/12/2025", observacion: "Sin observacion" },
-            { id: "16", planilla: "30", tipo: "2° DEVOLUCION", fecha: "24/12/2025", observacion: "La Planilla de Avance fue devuelta según nota SEDEM/GG/IBAE N° 0054/2026, debido a que las observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la propia planilla fueron subsanadas únicamente de manera parcial. Asimismo, se evidenció la persistencia de varias observaciones formuladas en la primera devolución, las cuales no fueron atendidas ni corregidas adecuadamente." },
-            { id: "17", planilla: "30", tipo: "1° DEVOLUCION", fecha: "29/12/2025", observacion: "La planilla fue devuelta, según nota SEDEM/GG/IBAE N° 1668/2025, debido a la existencia de observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la Planilla de Avance, las cuales requieren su correspondiente subsanación y adecuación antes de su consideración para el pago coprrespondiente." },
-            { id: "18", planilla: "30", tipo: "2° PRESENTACION", fecha: "12/01/2026", observacion: "Sin observacion" },
+            { id: "15", planilla: "30", tipo: "1° PRESENTACION", fecha: "23/12/2025", observacion: "0 días transcurridos" },
+            { id: "16", planilla: "30", tipo: "1° DEVOLUCION", fecha: "29/12/2025", observacion: "La planilla fue devuelta, según nota SEDEM/GG/IBAE N° 1668/2025, debido a la existencia de observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la Planilla de Avance, las cuales requieren su correspondiente subsanación y adecuación antes de su consideración para el pago coprrespondiente." },
+            { id: "17", planilla: "30", tipo: "2° PRESENTACION", fecha: "12/01/2026", observacion: "20 días transcurridos" },
+            { id: "18", planilla: "30", tipo: "2° DEVOLUCION", fecha: "16/1/2026", observacion: "La Planilla de Avance fue devuelta según nota SEDEM/GG/IBAE N° 0054/2026, debido a que las observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la propia planilla fueron subsanadas únicamente de manera parcial. Asimismo, se evidenció la persistencia de varias observaciones formuladas en la primera devolución, las cuales no fueron atendidas ni corregidas adecuadamente." },
             { id: "19", planilla: "30", tipo: "NOTIFICACION DE CUMPLIMIENTO DE CONTRATO", fecha: "05/03/2026", observacion: "Habiendo transcurrido treinta y un (31) días hábiles sin que se hubiera efectuado la presentación de las Planillas de Avance N.° 29 y N.° 30, despues de la ultima devolcuion y ante la ausencia de información respecto a su estado de revisión y subsanación, se notificó a la empresa de Control y Monitoreo según nota SEDEM/GG/IBAE N°0278/2026, para que informe sobre la situación actual de dichas planillas presentadas por la Empresa Contratista. Asimismo, se le instruyó proceder con la remisión de las referidas planillas, con todas las observaciones formuladas en revisiones anteriores hayan sido debidamente subsanadas, a efectos de continuar con el proceso de pago." },
-            { id: "20", planilla: "30", tipo: "3° PRESENTACION", fecha: "10/03/2026", observacion: "Sin observacion" },
+            { id: "20", planilla: "30", tipo: "3° PRESENTACION", fecha: "10/03/2026", observacion: "77 días transcurridos" },
             { id: "21", planilla: "30", tipo: "3° DEVOLUCION", fecha: "17/03/2026", observacion: "La Planilla de Avance fue devuelta por tercera vez según nota SEDEM/GG/IBAE N° 0354/2026, debido a que las observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la propia planilla fueron subsanadas únicamente de manera parcial. Asimismo, se verificó la persistencia de diversas observaciones formuladas desde la primera devolución, las cuales no fueron atendidas ni corregidas adecuadamente, manteniéndose inconsistencias técnicas y documentales que impiden su validación y posterior procesamiento para pago." },
             { id: "22", planilla: "30", tipo: "INSTRUCTIVO PARA PRESENTACION DE PLANILLAS", fecha: "31/03/2026", observacion: "Habiendo transcurrido diez dias habiles (10) días hábiles sin que se hubiera efectuado la presentación de las Planillas de Avance N.° 29 y N.° 30, despues de la ultima devolucion y ante la ausencia de información respecto a su estado de revisión y subsanación, se le instruyó proceder con la remisión de las referidas planillas según nota SEDEM/GG/IBAE N°0406/2026, con todas las observaciones formuladas en revisiones anteriores hayan sido debidamente subsanadas, a efectos de continuar con el proceso de pago." },
-            { id: "23", planilla: "30", tipo: "4° PRESENTACION", fecha: "15/04/2026", observacion: "Sin observacion" },
+            { id: "23", planilla: "30", tipo: "4° PRESENTACION", fecha: "15/04/2026", observacion: "113 días transcurridos" },
             { id: "24", planilla: "30", tipo: "GESTIÓN DE PAGO", fecha: "16/4/2026", observacion: "se esta realizando la gestion de desembolso ante el ministerio de economia y finanzas publicas - MEFP, para la efectivizacion del pago correspondeinte" },
 
             // PLANILLA 31
-            { id: "25", planilla: "31", tipo: "1° PRESENTACION", fecha: "18/03/2026", observacion: "Sin observacion" },
+            { id: "25", planilla: "31", tipo: "1° PRESENTACION", fecha: "18/03/2026", observacion: "0 días transcurridos" },
             { id: "26", planilla: "31", tipo: "1° DEVOLUCION", fecha: "24/03/2026", observacion: "La planilla fue devuelta según nota SEDEM/GG/IBAE N° 0378/2026, debido a la existencia de observaciones de forma y de fondo identificadas tanto en el Informe de Control y Monitoreo como en el contenido de la Planilla de Avance, las cuales requieren su correspondiente subsanación y adecuación antes de su consideración para el pago coprrespondiente." },
-            { id: "27", planilla: "31", tipo: "2° PRESENTACION", fecha: "20/04/2026", observacion: "Sin observacion" },
+            { id: "27", planilla: "31", tipo: "2° PRESENTACION", fecha: "20/04/2026", observacion: "33 días transcurridos" },
             { id: "28", planilla: "31", tipo: "GESTIÓN DE PAGO", fecha: "21/4/2026", observacion: "se esta realizando la gestion de desembolso ante el ministerio de economia y finanzas publicas - MEFP, para la efectivizacion del pago correspondeinte" }
         ];
 
@@ -291,14 +314,19 @@
 
         const getStatusBadgeHtml = (tipo) => {
             const upperTipo = tipo.toUpperCase();
-            let bg = "bg-slate-100", text = "text-slate-700", border = "border-slate-200";
+            let bg = "bg-slate-700", text = "text-slate-300", border = "border-slate-600";
 
-            if (upperTipo.includes('DEVOLUCION')) { bg = "bg-rose-50"; text = "text-rose-700"; border = "border-rose-200"; }
-            else if (upperTipo.includes('PRESENTACION')) { bg = "bg-blue-50"; text = "text-blue-700"; border = "border-blue-200"; }
-            else if (upperTipo.includes('PAGO')) { bg = "bg-emerald-50"; text = "text-emerald-700"; border = "border-emerald-200"; }
-            else if (upperTipo.includes('NOTIFICACION') || upperTipo.includes('INSTRUCTIVO')) { bg = "bg-amber-50"; text = "text-amber-700"; border = "border-amber-200"; }
+            if (upperTipo.includes('DEVOLUCION')) { bg = "bg-rose-900/40"; text = "text-rose-400"; border = "border-rose-800"; }
+            else if (upperTipo.includes('PRESENTACION')) { bg = "bg-blue-900/40"; text = "text-blue-400"; border = "border-blue-800"; }
+            else if (upperTipo.includes('PAGO')) { bg = "bg-emerald-900/40"; text = "text-emerald-400"; border = "border-emerald-800"; }
+            else if (upperTipo.includes('NOTIFICACION') || upperTipo.includes('INSTRUCTIVO')) { bg = "bg-amber-900/40"; text = "text-amber-400"; border = "border-amber-800"; }
 
             return `<span class="px-3 py-1 rounded-md text-xs font-semibold border ${bg} ${text} ${border}">${tipo}</span>`;
+        };
+
+        // Formatea el texto de la observación para resaltar "X días transcurridos"
+        const highlightDays = (text) => {
+            return text.replace(/(\d+\s*días transcurridos)/gi, '<span class="highlight-days">$1</span>');
         };
 
         // ==========================================
@@ -312,17 +340,17 @@
 
             const container = document.getElementById('kpiContainer');
             container.innerHTML = `
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
-                    <div class="p-4 rounded-xl bg-teal-50"><i data-lucide="dollar-sign" class="w-6 h-6 text-teal-600"></i></div>
-                    <div><p class="text-sm font-medium text-slate-500 mb-1">Monto Total General</p><p class="text-2xl font-bold text-slate-900">${formatCurrency(totalMonto)}</p></div>
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700/50 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300 group">
+                    <div class="p-4 rounded-xl bg-teal-900/30 group-hover:bg-teal-900/50 transition-colors"><i data-lucide="dollar-sign" class="w-6 h-6 text-teal-400"></i></div>
+                    <div><p class="text-sm font-medium text-slate-400 mb-1">Monto Total General</p><p class="text-2xl font-bold text-white">${formatCurrency(totalMonto)}</p></div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
-                    <div class="p-4 rounded-xl bg-blue-50"><i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i></div>
-                    <div><p class="text-sm font-medium text-slate-500 mb-1">Líquido Pagable Total</p><p class="text-2xl font-bold text-slate-900">${formatCurrency(totalLiquido)}</p></div>
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700/50 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300 group">
+                    <div class="p-4 rounded-xl bg-blue-900/30 group-hover:bg-blue-900/50 transition-colors"><i data-lucide="file-text" class="w-6 h-6 text-blue-400"></i></div>
+                    <div><p class="text-sm font-medium text-slate-400 mb-1">Líquido Pagable Total</p><p class="text-2xl font-bold text-white">${formatCurrency(totalLiquido)}</p></div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300">
-                    <div class="p-4 rounded-xl bg-rose-50"><i data-lucide="alert-circle" class="w-6 h-6 text-rose-600"></i></div>
-                    <div><p class="text-sm font-medium text-slate-500 mb-1">Descuento por Anticipo</p><p class="text-2xl font-bold text-slate-900">${formatCurrency(totalDescuento)}</p></div>
+                <div class="bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-700/50 flex items-center gap-5 transition-transform hover:-translate-y-1 duration-300 group">
+                    <div class="p-4 rounded-xl bg-rose-900/30 group-hover:bg-rose-900/50 transition-colors"><i data-lucide="alert-circle" class="w-6 h-6 text-rose-400"></i></div>
+                    <div><p class="text-sm font-medium text-slate-400 mb-1">Descuento por Anticipo</p><p class="text-2xl font-bold text-white">${formatCurrency(totalDescuento)}</p></div>
                 </div>
             `;
             lucide.createIcons();
@@ -357,16 +385,19 @@
 
             dataToRender.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition-colors group";
+                tr.className = "hover:bg-slate-800/80 transition-colors group";
+
+                // Aplicar el resaltado de "X días transcurridos"
+                const highlightedText = highlightDays(row.observacion);
 
                 let obsHtml = '';
                 if (row.observacion === 'Sin observacion') {
-                    obsHtml = `<span class="text-slate-400 italic">Sin observación</span>`;
+                    obsHtml = `<span class="text-slate-500 italic">Sin observación</span>`;
                 } else {
                     obsHtml = `
                         <div class="flex items-center gap-2">
-                            <p class="truncate-text max-w-[200px] lg:max-w-xs text-slate-700" title="${row.observacion.replace(/"/g, '&quot;')}">${row.observacion}</p>
-                            <button onclick="openObsModal('${row.id}')" class="text-teal-600 hover:text-teal-800 hover:bg-teal-50 p-1.5 rounded-md transition-colors flex-shrink-0 flex items-center gap-1 text-xs font-medium">
+                            <p class="truncate-text max-w-[200px] lg:max-w-md text-slate-300" title="${row.observacion.replace(/"/g, '&quot;')}">${highlightedText}</p>
+                            <button onclick="openObsModal('${row.id}')" class="text-teal-400 hover:text-teal-300 hover:bg-teal-900/30 p-1.5 rounded-md transition-colors flex-shrink-0 flex items-center gap-1 text-xs font-bold border border-transparent hover:border-teal-800">
                                 <i data-lucide="eye" class="w-4 h-4"></i> Ver
                             </button>
                         </div>
@@ -374,17 +405,17 @@
                 }
 
                 tr.innerHTML = `
-                    <td class="p-4 font-medium text-slate-900" title="Planilla N° ${row.planilla}">
-                        <span class="bg-slate-200 text-slate-800 px-3 py-1 rounded-full text-xs font-bold">${row.planilla}</span>
+                    <td class="p-4 font-medium" title="Planilla N° ${row.planilla}">
+                        <span class="bg-slate-700 text-white border border-slate-600 px-3 py-1.5 rounded-md text-xs font-bold shadow-sm">${row.planilla}</span>
                     </td>
-                    <td class="p-4 text-slate-700" title="${row.tipo}">${getStatusBadgeHtml(row.tipo)}</td>
-                    <td class="p-4 text-slate-600 whitespace-nowrap" title="Fecha: ${row.fecha}">${row.fecha}</td>
+                    <td class="p-4 text-slate-300" title="${row.tipo}">${getStatusBadgeHtml(row.tipo)}</td>
+                    <td class="p-4 text-slate-400 whitespace-nowrap" title="Fecha: ${row.fecha}">${row.fecha}</td>
                     <td class="p-4">${obsHtml}</td>
                     <td class="p-4 flex justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onclick="openFormModal('${row.id}')" class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar registro">
+                        <button onclick="openFormModal('${row.id}')" class="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-900/30 rounded-lg transition-colors" title="Editar registro">
                             <i data-lucide="edit-2" class="w-5 h-5"></i>
                         </button>
-                        <button onclick="handleDelete('${row.id}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Eliminar registro">
+                        <button onclick="handleDelete('${row.id}')" class="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-900/30 rounded-lg transition-colors" title="Eliminar registro">
                             <i data-lucide="trash-2" class="w-5 h-5"></i>
                         </button>
                     </td>
@@ -411,24 +442,34 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Líquido Pagable', data: dataLiquido, backgroundColor: '#14b8a6', borderRadius: 4 },
-                        { label: 'Descuento', data: dataDescuento, backgroundColor: '#f43f5e', borderRadius: 4 }
+                        { label: 'Líquido Pagable', data: dataLiquido, backgroundColor: '#14b8a6', borderRadius: 4, hoverBackgroundColor: '#2dd4bf' }, // teal-500 / 400
+                        { label: 'Descuento', data: dataDescuento, backgroundColor: '#f43f5e', borderRadius: 4, hoverBackgroundColor: '#fb7185' } // rose-500 / 400
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}` } },
-                        legend: { position: 'bottom' }
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatCurrency(ctx.raw)}` }
+                        },
+                        legend: { position: 'bottom', labels: { color: '#94a3b8' } }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { borderDash: [3, 3] },
-                            ticks: { callback: (value) => `${value / 1000000}M` }
+                            grid: { color: '#334155', borderDash: [3, 3] },
+                            ticks: { callback: (value) => `${value / 1000000}M`, color: '#94a3b8' }
                         },
-                        x: { grid: { display: false } }
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
                     }
                 }
             });
@@ -443,8 +484,11 @@
                     labels: labels,
                     datasets: [{
                         data: dataMontoTotal,
-                        backgroundColor: ['#0f172a', '#14b8a6', '#f43f5e', '#3b82f6'],
-                        borderWidth: 0
+                        // Colores vibrantes para modo oscuro
+                        backgroundColor: ['#8b5cf6', '#14b8a6', '#f43f5e', '#3b82f6'],
+                        borderColor: '#1e293b', // Mismo que bg-slate-800
+                        borderWidth: 3,
+                        hoverOffset: 4
                     }]
                 },
                 options: {
@@ -452,8 +496,15 @@
                     maintainAspectRatio: false,
                     cutout: '65%',
                     plugins: {
-                        tooltip: { callbacks: { label: (ctx) => formatCurrency(ctx.raw) } },
-                        legend: { position: 'bottom' }
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#f8fafc',
+                            bodyColor: '#cbd5e1',
+                            borderColor: '#334155',
+                            borderWidth: 1,
+                            callbacks: { label: (ctx) => formatCurrency(ctx.raw) }
+                        },
+                        legend: { position: 'bottom', labels: { color: '#94a3b8' } }
                     }
                 }
             });
@@ -466,10 +517,11 @@
         async function syncWithGoogleSheets(action, data = null) {
             const icon = document.getElementById('syncIcon');
             const text = document.getElementById('syncText');
+            const container = document.getElementById('syncStatusContainer');
 
             icon.setAttribute('data-lucide', 'refresh-cw');
-            icon.classList.add('animate-spin', 'text-teal-500');
-            icon.classList.remove('text-emerald-500', 'text-rose-500');
+            icon.classList.add('animate-spin', 'text-teal-400');
+            icon.classList.remove('text-emerald-400', 'text-rose-400');
             text.innerText = 'Sincronizando...';
             lucide.createIcons();
 
@@ -478,13 +530,13 @@
                 await new Promise(r => setTimeout(r, 800));
 
                 icon.setAttribute('data-lucide', 'check-circle-2');
-                icon.classList.remove('animate-spin', 'text-teal-500', 'text-rose-500');
-                icon.classList.add('text-emerald-500');
+                icon.classList.remove('animate-spin', 'text-teal-400', 'text-rose-400');
+                icon.classList.add('text-emerald-400');
                 text.innerText = 'Sincronizado';
             } catch (error) {
                 icon.setAttribute('data-lucide', 'alert-circle');
-                icon.classList.remove('animate-spin', 'text-teal-500', 'text-emerald-500');
-                icon.classList.add('text-rose-500');
+                icon.classList.remove('animate-spin', 'text-teal-400', 'text-emerald-400');
+                icon.classList.add('text-rose-400');
                 text.innerText = 'Error';
             }
             lucide.createIcons();
@@ -508,7 +560,8 @@
             const item = acciones.find(a => a.id === id);
             if (!item) return;
             document.getElementById('obsModalTitle').innerText = `${item.tipo} - Planilla ${item.planilla}`;
-            document.getElementById('obsModalContent').innerText = item.observacion;
+            // Aplicar el resaltado también dentro del modal
+            document.getElementById('obsModalContent').innerHTML = highlightDays(item.observacion);
             document.getElementById('obsModal').classList.remove('hidden');
         }
         function closeObsModal() { document.getElementById('obsModal').classList.add('hidden'); }
